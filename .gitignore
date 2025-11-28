@@ -17,3 +17,4 @@ output/*
 new.sh
 quick_update.sh
 .DS_Store
+build_assets/*

@@ -14,6 +14,6 @@ wget -N https://raw.githubusercontent.com/forjustice/v2node/master/script/instal
 
 ## 构建
 ``` bash
-GOEXPERIMENT=jsonv2 go build -v -o build_assets/v2node -trimpath -ldflags "-X 'github.com/forjustice/v2node/cmd.version=$version' -s -w -buildid="
+bash script/build.sh -v 0.2.1 -o linux -a amd64
 ```
 
