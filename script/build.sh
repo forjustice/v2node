@@ -112,7 +112,28 @@ GEO_FILES=('geoip' 'geosite')
 for file in "${GEO_FILES[@]}"; do
     DOWNLOAD_URL="https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/${file}.dat"
     echo -e "  下载 ${file}.dat..."
-    if ! curl -sL "$DOWNLOAD_URL" -o "$BUILD_DIR/${file}.dat"; then
+
+    # 尝试下载，最多重试 3 次
+    MAX_RETRIES=3
+    RETRY_COUNT=0
+    SUCCESS=false
+
+    while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
+        if curl -fsSL --connect-timeout 30 --max-time 120 "$DOWNLOAD_URL" -o "$BUILD_DIR/${file}.dat"; then
+            # 验证文件是否成功下载（大于 1KB）
+            if [[ -f "$BUILD_DIR/${file}.dat" ]] && [[ $(wc -c < "$BUILD_DIR/${file}.dat") -gt 1024 ]]; then
+                SUCCESS=true
+                break
+            fi
+        fi
+        RETRY_COUNT=$((RETRY_COUNT + 1))
+        if [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; then
+            echo -e "  ${yellow}重试 ($((RETRY_COUNT + 1))/$MAX_RETRIES)...${plain}"
+            sleep 2
+        fi
+    done
+
+    if [[ "$SUCCESS" == "false" ]]; then
         echo -e "${red}警告: 下载 ${file}.dat 失败${plain}"
     fi
 done
